@@ -1,26 +1,276 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ------------------------------------------------------------------
+   Design tokens, taken from the Figma file (frame width 1440).
+   Sizes are rem so they follow the visitor's browser font size;
+   clamp() scales them between mobile and the 1440 desktop frame.
+   ------------------------------------------------------------------ */
+@theme {
+  /* Colour */
+  --color-ink: #0f1214;        /* page dark, dark text */
+  --color-ink-2: #171b1e;      /* cards on dark */
+  --color-ink-3: #191d20;      /* form fields */
+  --color-cream: #efebe4;      /* light section background */
+  --color-bone: #f2eee6;       /* text on dark */
+  --color-paper: #f8f6f2;      /* cards on cream */
+  --color-flame: #ff9f40;      /* buttons, highlight card */
+  --color-amber: #ff9f38;      /* orange labels */
+  --color-ember: #e0731f;      /* extrude shadow, deep orange */
+  --color-sun: #ffd45c;        /* yellow display headings */
+  --color-neon: #ffedd6;       /* neon tube */
+  --color-stone: #6f6a62;      /* muted text on cream */
+
+  /* Fonts (CSS variables come from next/font in layout.tsx) */
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-lilita), var(--font-archivo), ui-sans-serif, sans-serif;
+  --font-neon: var(--font-neonderthaw), cursive;
+  --font-satoshi: var(--font-satoshi-local), var(--font-archivo), ui-sans-serif, sans-serif;
+
+  /* Type scale: name / desktop size from Figma */
+  --text-hero: clamp(3rem, 1rem + 7.08vw, 7.375rem);            /* 118 */
+  --text-hero--line-height: 0.983;
+  --text-hero--letter-spacing: -0.045em;
+
+  --text-heading: clamp(2.25rem, 1.2rem + 3.3vw, 3.75rem);       /* Lilita 60 */
+  --text-heading--line-height: 1.02;
+  --text-heading--letter-spacing: 0.01em;
+
+  --text-statement: clamp(1.625rem, 1rem + 1.95vw, 2.625rem);    /* 42 */
+  --text-statement--line-height: 1.19;
+  --text-statement--letter-spacing: -0.025em;
+
+  --text-stat: clamp(3rem, 2rem + 2.3vw, 4rem);                  /* 64 */
+  --text-stat--line-height: 1;
+  --text-stat--letter-spacing: -0.04em;
+
+  --text-price: clamp(2rem, 1.6rem + 1.1vw, 2.5rem);             /* 40 */
+  --text-price--line-height: 1.1;
+  --text-price--letter-spacing: -0.03em;
+
+  --text-title: clamp(1.5rem, 1rem + 1.25vw, 2.125rem);          /* Lilita 34 */
+  --text-title--line-height: 1.15;
+  --text-title--letter-spacing: 0.02em;
+
+  --text-rate: clamp(1.375rem, 1.1rem + 0.75vw, 1.75rem);         /* 28 */
+  --text-rate--line-height: 1.07;
+  --text-rate--letter-spacing: -0.02em;
+
+  --text-label: clamp(1.25rem, 1.05rem + 0.65vw, 1.625rem);       /* Lilita 26 */
+  --text-label--line-height: 1.08;
+
+  --text-card: clamp(1.25rem, 1.1rem + 0.35vw, 1.375rem);         /* 22 */
+  --text-card--line-height: 1.09;
+  --text-card--letter-spacing: -0.01em;
+
+  --text-body-xl: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);      /* 20 */
+  --text-body-xl--line-height: 1.5;
+  --text-body-lg: 1.125rem;                                      /* 18 */
+  --text-body-lg--line-height: 1.555;
+  --text-body: 1rem;                                             /* 16 */
+  --text-body--line-height: 1.5;
+  --text-small: 0.9375rem;                                       /* 15 */
+  --text-small--line-height: 1.35;
+  --text-xs: 0.8125rem;                                          /* 13 */
+  --text-xs--line-height: 1.1;
+  --text-2xs: 0.75rem;                                           /* 12 */
+  --text-2xs--line-height: 1.1;
+
+  /* Shape */
+  --radius-panel: 2rem;    /* full-bleed photo panels */
+  --radius-card: 1.5rem;   /* cards and photos */
+  --radius-field: 0.875rem;
+
+  --breakpoint-xs: 30rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    background: var(--color-ink);
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-block-start: 1.5rem;
+  }
+  body {
+    background: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+  img { max-width: 100%; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :focus-visible {
+    outline: 3px solid var(--color-flame);
+    outline-offset: 3px;
+  }
+  .on-light :focus-visible { outline-color: var(--color-ember); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* 1280 content column inside the 1440 frame; side gutters shrink on small screens */
+  .container-x {
+    width: 100%;
+    max-width: calc(80rem + 2 * var(--gutter));
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    --gutter: 1.25rem;
+    @media (width >= 40rem) { --gutter: 2rem; }
+    @media (width >= 64rem) { --gutter: 3rem; }
+    @media (width >= 80rem) { --gutter: 5rem; }
+  }
+
+  /* Vertical rhythm: 120px between sections on the desktop frame */
+  .section-y { padding-block: clamp(4.5rem, 3rem + 5vw, 7.5rem); }
+
+  /* Lilita One display headings with the 4-layer extruded shadow.
+     Offsets are em-based so the effect scales with the text. */
+  .text-extrude {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    text-shadow:
+      0.0717em 0.1433em 0 var(--color-ember),
+      0.0533em 0.1067em 0 var(--color-ember),
+      0.035em 0.0717em 0 var(--color-flame),
+      0.0183em 0.035em 0 var(--color-flame);
+  }
+
+  .text-neon {
+    font-family: var(--font-neon);
+    color: var(--color-neon);
+    text-shadow:
+      0 0 0.524em rgb(255 158 64 / 0.45),
+      0 0 0.248em rgb(255 158 64 / 0.7),
+      0 0 0.114em rgb(255 158 64 / 0.85),
+      0 0 0.048em rgb(255 158 64 / 0.95),
+      0 0 0.0143em #ff9e40;
+  }
+
+  /* Hides content visually but keeps it in the accessibility tree */
+  .visually-hidden:where(:not(:focus-within, :active)) {
+    position: absolute !important;
+    clip-path: inset(50%) !important;
+    overflow: hidden !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .skip-link {
+    position: absolute;
+    inset-inline-start: 1rem;
+    inset-block-start: 1rem;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    border-radius: 999px;
+    background: var(--color-flame);
+    color: var(--color-ink);
+    font-weight: 600;
+    translate: 0 -200%;
+    &:focus-visible { translate: 0 0; }
+  }
+
+  @media (forced-colors: active) {
+    .text-extrude, .text-neon { text-shadow: none; }
+  }
+}
+
+/* ------------------------------------------------------------------
+   FAQ accordion (native details/summary)
+   ------------------------------------------------------------------ */
+.faq summary {
+  list-style: none;
+  cursor: pointer;
+  &::-webkit-details-marker { display: none; }
+}
+.faq details::details-content {
+  interpolate-size: allow-keywords;
+  overflow: clip;
+  contain: layout;
+}
+.faq details:not([open])::details-content { block-size: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .faq details::details-content {
+    transition: block-size, content-visibility;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-in-out;
+    transition-behavior: allow-discrete;
+  }
+  .faq .faq-icon { transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+}
+.faq details[open] .faq-icon {
+  background: var(--color-ink);
+  color: var(--color-bone);
+  border-color: var(--color-ink);
+}
+.faq details[open] .faq-plus-v { display: none; }
+
+/* ------------------------------------------------------------------
+   Form fields: errors appear only after interaction (:user-invalid)
+   ------------------------------------------------------------------ */
+.field-box:has(:is(:user-invalid, .user-invalid-fallback)) {
+  box-shadow: inset 0 0 0 2px #ff8a7a;
+}
+.field-error { display: none; }
+.field-box:has(:is(:user-invalid, .user-invalid-fallback)) .field-error { display: flex; }
+
+/* Native date and select controls on the dark fields */
+.field-control {
+  font: inherit;
+  font-size: max(1rem, 1em);
+  color-scheme: dark;
+  &::placeholder { color: rgb(242 238 230 / 0.6); opacity: 1; }
+}
+select.field-control:has(option[value=""]:checked) { color: rgb(242 238 230 / 0.6); }
+
+/* ------------------------------------------------------------------
+   Mobile navigation popover
+   ------------------------------------------------------------------ */
+@media (width < 75rem) {
+  .site-menu[popover] {
+    position: fixed;
+    inset: auto;
+    inset-block-start: 5.5rem;
+    inset-inline-end: 1rem;
+    inline-size: min(calc(100dvw - 2rem), 22rem);
+    max-block-size: calc(100dvh - 7rem);
+    overflow: auto;
+    margin: 0;
+  }
+}
+@media (width < 75rem) and (prefers-reduced-motion: no-preference) {
+  .site-menu[popover] {
+    transition: opacity 0.2s, translate 0.2s, display 0.2s, overlay 0.2s;
+    transition-behavior: allow-discrete;
+    opacity: 0;
+    translate: 0 -0.5rem;
+  }
+  .site-menu[popover]:is(:popover-open, .\:popover-open) {
+    opacity: 1;
+    translate: 0 0;
+    @starting-style {
+      opacity: 0;
+      translate: 0 -0.5rem;
+    }
+  }
+}
+
+/* Gallery viewer */
+dialog.viewer:modal { overscroll-behavior: contain; }
+dialog.viewer::backdrop {
+  background: rgb(8 10 11 / 0.92);
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
