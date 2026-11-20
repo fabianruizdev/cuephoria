@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { site } from "@/content/site-data";
 import { tel } from "@/lib/format";
+import TopLink, { useScrollTopAfterNav } from "./TopLink";
 import { PillLink } from "./ui";
 
 /* 20px line icons for the compact (scrolled) header */
@@ -32,8 +32,10 @@ export const NAV = [
   { href: "/hours-location", label: "Visit", icon: "visit" },
 ] as const;
 
-/* Past this many px of scroll the header shrinks to icons only. */
-const COMPACT_AT = 80;
+/* The header shrinks to icons only past COMPACT_AT px of scroll and grows back above
+   EXPAND_AT, so it does not flicker when the page rests near one threshold. */
+const COMPACT_AT = 96;
+const EXPAND_AT = 32;
 
 /* The inline navigation appears at this width; below it the same list is a popover. */
 const WIDE = "(min-width: 75rem)";
@@ -51,9 +53,13 @@ export default function Header() {
   const pathname = usePathname();
   const menuRef = useRef<HTMLUListElement>(null);
   const [compact, setCompact] = useState(false);
+  useScrollTopAfterNav();
 
   useEffect(() => {
-    const onScroll = () => setCompact(window.scrollY > COMPACT_AT);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setCompact((was) => (was ? y > EXPAND_AT : y > COMPACT_AT));
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -90,7 +96,7 @@ export default function Header() {
   return (
     <header data-compact={compact ? "" : undefined} className="site-header fixed inset-x-0 top-0 z-30">
       <div className="site-header-bar mx-auto flex items-center gap-4 px-5 sm:px-8 xl:px-14">
-        <Link href="/" className="site-logo me-auto flex shrink-0 items-center rounded-sm" aria-label={`${site.business.shortName} home`}>
+        <TopLink href="/" className="site-logo me-auto flex shrink-0 items-center rounded-sm" aria-label={`${site.business.shortName} home`}>
           {/* Scrolled: the wordmark rolls away and an 8-ball rolls in */}
           <span aria-hidden="true" className="hdr-x show-compact grid">
             <span>
@@ -102,7 +108,7 @@ export default function Header() {
               <Logo />
             </span>
           </span>
-        </Link>
+        </TopLink>
 
         <nav aria-label="Primary" className="contents">
           <button
@@ -129,7 +135,7 @@ export default function Header() {
               const current = isCurrent(item.href);
               return (
                 <li key={item.href}>
-                  <Link
+                  <TopLink
                     href={item.href}
                     data-label={item.label}
                     aria-current={current ? "page" : undefined}
@@ -143,7 +149,7 @@ export default function Header() {
                     <span className="nav-label hdr-x grid">
                       <span className="whitespace-nowrap">{item.label}</span>
                     </span>
-                  </Link>
+                  </TopLink>
                 </li>
               );
             })}

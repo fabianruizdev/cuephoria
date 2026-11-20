@@ -23,7 +23,7 @@ export default function GalleryPage() {
         image="/img/gallery/group-at-bar.jpg"
         position="center 35%"
       >
-        <PillLink href="/book-events-contact-us#plan" tone="flame">
+        <PillLink href="/book-events-contact-us" tone="flame">
           Plan an event
         </PillLink>
       </PageHero>

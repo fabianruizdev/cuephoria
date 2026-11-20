@@ -92,13 +92,13 @@ export function PillLink({
   const inner = <PillInner icon={icon} labelClassName={labelClassName}>{children}</PillInner>;
   if (href.startsWith("/") && !href.startsWith("//")) {
     return (
-      <Link href={href} className={cls} data-tone={tone} data-magnetic {...rest}>
+      <Link href={href} className={cls} data-tone={tone} {...rest}>
         {inner}
       </Link>
     );
   }
   return (
-    <a href={href} className={cls} data-tone={tone} data-magnetic {...rest}>
+    <a href={href} className={cls} data-tone={tone} {...rest}>
       {inner}
     </a>
   );
@@ -113,7 +113,7 @@ export function PillButton({
   ...rest
 }: PillProps & Omit<ComponentProps<"button">, "className" | "children">) {
   return (
-    <button data-magnetic data-tone={tone} className={`${pillBase} cursor-pointer disabled:cursor-progress disabled:opacity-70 ${className}`} {...rest}>
+    <button data-tone={tone} className={`${pillBase} cursor-pointer disabled:cursor-progress disabled:opacity-70 ${className}`} {...rest}>
       <PillInner icon={icon} labelClassName={labelClassName}>{children}</PillInner>
     </button>
   );
@@ -169,7 +169,7 @@ export function SectionHead({
         {heading}
       </DisplayHeading>
       {(intro || action) && (
-        <div data-reveal className="flex flex-col items-start gap-8">
+        <div data-reveal className="flex flex-col items-start gap-8 md:items-end md:text-end">
           {intro && (
             <p className={`text-body-lg leading-[1.45] ${introTone === "stone" ? "text-stone" : "text-bone/70"}`}>{intro}</p>
           )}

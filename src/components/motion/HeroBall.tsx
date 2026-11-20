@@ -5,8 +5,8 @@ import { useRef } from "react";
 import { gsap, motionOn, SplitText, useGSAP } from "@/lib/gsap";
 
 /**
- * Homepage intro: the 8-ball rolls across the "Cue-Phoria" word and reveals it in gold;
- * a few letters behind the ball the gold cools to the word's normal colour. Then the
+ * Homepage intro: a cue slides in, lines up and breaks; the struck 8-ball rolls across the "Cue-Phoria" word and reveals it in gold;
+ * once the ball has gone the whole word slowly cools to its normal grey. Then the
  * headline lines and the rest of the hero follow.
  *
  * Markup contract (see HomeHero in sections.tsx):
@@ -18,6 +18,7 @@ import { gsap, motionOn, SplitText, useGSAP } from "@/lib/gsap";
  */
 export default function HeroBall() {
   const ref = useRef<HTMLDivElement>(null);
+  const cueRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     (_ctx, contextSafe) => {
@@ -46,13 +47,12 @@ export default function HeroBall() {
           const r = d / 2;
           const W = word.offsetWidth;
           const left = wrap.getBoundingClientRect().left;
-          const startX = -left - d - 8;
+          // The ball waits on screen just left of the word (or at the screen edge) for the break.
+          const startX = Math.max(-left + 6, -d - 16);
           const endX = window.innerWidth - left + 8;
           const dur = gsap.utils.clamp(1.4, 2.5, (endX - startX) / 650);
-          // The glow layer is padded so its text-shadow is not masked off; offset the mask by that.
+          // The gold layer is padded (see .hero-glow); offset its clip by that.
           const pad = glow ? word.getBoundingClientRect().left - glow.getBoundingClientRect().left : 0;
-          // How far behind the ball the gold has fully cooled to the normal colour.
-          const trail = Math.max(d * 1.5, W * 0.22);
 
           const p = { x: startX };
           // Rolling without slipping: angle = distance / radius. The light and shading stay
@@ -78,9 +78,9 @@ export default function HeroBall() {
             const edge = Math.min(W + 40, Math.max(0, x + r));
             word.style.clipPath = edge > 0 ? `polygon(-40px -40%, ${edge}px -40%, ${edge}px 140%, -40px 140%)` : "inset(50%)";
             if (glow) {
-              // Solid gold right behind the ball, fading out over `trail` px so the real colour shows through.
+              // Everything the ball has passed is gold; nothing ahead of it shows.
               const e = edge + pad;
-              glow.style.maskImage = `linear-gradient(90deg, transparent ${e - trail}px, #000 ${e - trail * 0.3}px, #000 ${e}px, transparent ${e}px)`;
+              glow.style.clipPath = edge > 0 ? `inset(-50% calc(100% - ${e}px) -50% -50%)` : "inset(50%)";
             }
           };
 
@@ -88,27 +88,52 @@ export default function HeroBall() {
           render();
           if (glow) gsap.set(glow, { visibility: "visible" });
 
+          // Cue: slides in, lines up, pulls back and strikes. The ball rolls from the moment of contact.
+          const cue = cueRef.current;
+          const L = gsap.utils.clamp(200, 620, d * 3.2);
+          const c = { tip: startX - L * 0.75 };
+          const renderCue = () => {
+            if (cue) cue.style.transform = `translate3d(${c.tip - L}px,-50%,0)`;
+          };
+          if (cue) {
+            gsap.set(cue, { display: "block", width: L, opacity: 1 });
+            renderCue();
+          }
+
           const tl = gsap.timeline({
             delay: 0.2,
             onComplete: () => {
               gsap.set(ballBox, { display: "none" });
+              if (cue) gsap.set(cue, { display: "none" });
               gsap.set(word, { clearProps: "clipPath" });
               if (glow) gsap.set(glow, { display: "none" });
             },
           });
 
-          tl.to(p, { x: endX, duration: dur, ease: "power1.inOut", onUpdate: render }, 0);
-          // The last letters are still gold when the ball leaves; let them cool too.
-          if (glow) tl.to(glow, { opacity: 0, duration: 0.9, ease: "power2.out" }, dur - 0.15);
+          const aim = startX - 10;
+          let T0 = 0; // moment of contact
+          if (cue) {
+            tl.to(c, { tip: aim, duration: 0.6, ease: "power3.out", onUpdate: renderCue }, 0)
+              .to(c, { tip: aim - d * 0.8, duration: 0.45, ease: "power2.inOut", onUpdate: renderCue })
+              .to(c, { tip: startX + 2, duration: 0.1, ease: "power2.in", onUpdate: renderCue });
+            T0 = tl.duration();
+            tl.to(c, { tip: startX + d * 0.35, duration: 0.25, ease: "power2.out", onUpdate: renderCue }, T0)
+              .to(c, { tip: startX - L * 0.9, duration: 0.6, ease: "power2.in", onUpdate: renderCue })
+              .to(cue, { opacity: 0, duration: 0.4 }, "<0.2");
+          }
+          // Struck: fast off the cue, easing out as it rolls away.
+          tl.to(p, { x: endX, duration: dur, ease: "power2.out", onUpdate: render }, T0);
+          // After the ball has gone, the gold word slowly cools to grey.
+          if (glow) tl.to(glow, { opacity: 0, duration: 1, ease: "power2.inOut" }, T0 + dur + 0.1);
 
           if (title) {
             const split = SplitText.create(title, { type: "lines", mask: "lines" });
             gsap.set(title, { visibility: "visible" });
-            tl.from(split.lines, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.12, onComplete: () => split.revert() }, dur * 0.45);
+            tl.from(split.lines, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.12, onComplete: () => split.revert() }, T0 + dur * 0.45);
           }
 
           if (items.length) {
-            tl.fromTo(items, { autoAlpha: 0, y: 32 }, { autoAlpha: 1, y: 0, duration: 0.9, ease: "power3.out", stagger: 0.12, clearProps: "transform" }, dur * 0.6);
+            tl.fromTo(items, { autoAlpha: 0, y: 32 }, { autoAlpha: 1, y: 0, duration: 0.9, ease: "power3.out", stagger: 0.12, clearProps: "transform" }, T0 + dur * 0.6);
           }
         } catch {
           showAll();
@@ -133,13 +158,16 @@ export default function HeroBall() {
   );
 
   return (
+    <>
+    {/* Cue stick for the break shot, level with the ball centre */}
+    <div ref={cueRef} aria-hidden="true" className="hero-cue pointer-events-none absolute top-1/2 left-0 z-10">
+      <Image src="/img/cue-h.webp" alt="" width={1600} height={56} sizes="620px" loading="eager" className="block h-auto w-full select-none" draggable={false} />
+    </div>
     <div
       ref={ref}
       aria-hidden="true"
       className="hero-ball pointer-events-none absolute top-1/2 left-0 z-10 aspect-square h-[96%] -translate-y-1/2 will-change-transform"
     >
-      {/* Warm light the ball throws on the freshly revealed gold letters */}
-      <span className="hero-ball-light absolute top-[-30%] left-[-110%] h-[160%] w-[180%]" />
       {/* Contact shadow stays level under the ball */}
       <span className="absolute inset-x-[14%] bottom-[-4%] h-[10%] rounded-[50%] bg-black/70 blur-[6px]" />
       {/* Glossy black sphere, built in layers so the light never rotates with the ball */}
@@ -151,5 +179,6 @@ export default function HeroBall() {
         <span className="eight-ball-gloss absolute rounded-[50%]" />
       </div>
     </div>
+    </>
   );
 }

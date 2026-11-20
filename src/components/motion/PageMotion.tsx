@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { gsap, motionOn, ScrollTrigger, SplitText, useGSAP } from "@/lib/gsap";
 
 /**
@@ -10,10 +11,10 @@ import { gsap, motionOn, ScrollTrigger, SplitText, useGSAP } from "@/lib/gsap";
  *   [data-hero-bg]      hero photo: slow zoom-out on load, parallax on scroll
  *   [data-reveal]       fades up when scrolled into view (batched, so siblings stagger)
  *   [data-split]        display heading: letters pop up when scrolled into view
+ *   [data-fill]         statement text: words light up one by one as you scroll through it
  *   [data-count="n"]    single text node with a number: counts from n to its value
  *   [data-media]        rounded photo box: clip-path opens up, photo drifts with scroll
  *   [data-drift="px"]   moves against the scroll by up to px (gallery columns)
- *   [data-magnetic]     follows the pointer slightly (fine pointers only)
  *   .text-neon          flickers on like a neon tube, then buzzes now and then
  *
  * Rendered inside each page's hero (HomeHero / PageHero), not the layout or a template:
@@ -22,8 +23,6 @@ import { gsap, motionOn, ScrollTrigger, SplitText, useGSAP } from "@/lib/gsap";
  * It remounts with the page on every navigation. Skipped entirely when motion is off.
  */
 export default function PageMotion() {
-  const meter = useRef<HTMLDivElement>(null);
-
   useGSAP(
     () => {
       const root = document.documentElement;
@@ -77,6 +76,21 @@ export default function PageMotion() {
         });
       });
 
+      /* Statement: words fill in with the scroll --------------------- */
+      all("[data-fill]").forEach((el) => {
+        SplitText.create(el, {
+          type: "words",
+          autoSplit: true,
+          onSplit(self) {
+            return gsap.fromTo(
+              self.words,
+              { opacity: 0.15 },
+              { opacity: 1, ease: "none", stagger: 0.1, scrollTrigger: { trigger: el, start: "top 85%", end: "bottom 50%", scrub: true } }
+            );
+          },
+        });
+      });
+
       /* Counters ------------------------------------------------------ */
       all("[data-count]").forEach((el) => {
         const node = el.firstChild;
@@ -126,43 +140,6 @@ export default function PageMotion() {
         );
       });
 
-      /* Magnetic buttons ---------------------------------------------- */
-      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-        all("[data-magnetic]", document).forEach((el) => {
-          const xTo = gsap.quickTo(el, "x", { duration: 0.5, ease: "power3.out" });
-          const yTo = gsap.quickTo(el, "y", { duration: 0.5, ease: "power3.out" });
-          const move = (e: PointerEvent) => {
-            const r = el.getBoundingClientRect();
-            xTo((e.clientX - (r.left + r.width / 2)) * 0.22);
-            yTo((e.clientY - (r.top + r.height / 2)) * 0.32);
-          };
-          const leave = () => {
-            xTo(0);
-            yTo(0);
-          };
-          el.addEventListener("pointermove", move);
-          el.addEventListener("pointerleave", leave);
-          cleanups.push(() => {
-            el.removeEventListener("pointermove", move);
-            el.removeEventListener("pointerleave", leave);
-            gsap.set(el, { clearProps: "transform" });
-          });
-        });
-      }
-
-      /* Scroll meter: an 8-ball rolls along the top edge ---------------- */
-      const m = meter.current;
-      if (m) {
-        const bar = m.querySelector("[data-meter-bar]");
-        const ball = m.querySelector("[data-meter-ball]");
-        const size = 16;
-        const dist = () => window.innerWidth - size;
-        gsap
-          .timeline({ scrollTrigger: { start: 0, end: "max", scrub: 0.4, invalidateOnRefresh: true } })
-          .fromTo(bar, { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0)
-          .fromTo(ball, { x: 0, rotation: 0 }, { x: dist, rotation: () => (dist() / (size / 2)) * 57.2958, ease: "none" }, 0);
-      }
-
       // Headings and line breaks shift once the web fonts arrive.
       document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
@@ -171,8 +148,33 @@ export default function PageMotion() {
     []
   );
 
+  // The meter goes straight onto <body>: inside the hero it would share the hero's stacking
+  // context, and photos further down the page would paint over it.
+  const mounted = useSyncExternalStore(noop, () => true, () => false);
+  return mounted ? createPortal(<ScrollMeter />, document.body) : null;
+}
+
+const noop = () => () => {};
+
+/** Scroll meter: an orange bar fills along the top edge while an 8-ball rolls with it. */
+function ScrollMeter() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const m = ref.current;
+    if (!m || !motionOn()) return;
+    const bar = m.querySelector("[data-meter-bar]");
+    const ball = m.querySelector("[data-meter-ball]");
+    const size = 16;
+    const dist = () => window.innerWidth - size;
+    gsap
+      .timeline({ scrollTrigger: { start: 0, end: "max", scrub: 0.4, invalidateOnRefresh: true } })
+      .fromTo(bar, { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0)
+      .fromTo(ball, { x: 0, rotation: 0 }, { x: dist, rotation: () => (dist() / (size / 2)) * 57.2958, ease: "none" }, 0);
+  }, []);
+
   return (
-    <div ref={meter} aria-hidden="true" className="scroll-meter pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px]">
+    <div ref={ref} aria-hidden="true" className="scroll-meter pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px]">
       <div data-meter-bar className="h-full origin-left bg-flame" style={{ transform: "scaleX(0)" }} />
       {/* eslint-disable-next-line @next/next/no-img-element -- 16px decoration, no need for the image optimizer */}
       <img data-meter-ball src="/img/eight-ball.webp" alt="" width={16} height={16} className="absolute top-[3px] left-0 size-4" />

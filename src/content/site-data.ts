@@ -334,9 +334,9 @@ export const site = {
       { name: "Corporate events & team building", detail: "Get the team out of the office. Pool tournaments, food packages, drink packages and reserved seating for groups of all sizes." },
       { name: "Birthday parties", detail: "Pool, food, drinks and sports on the big screens with your friends." },
       { name: "Bachelor & bachelorette parties", detail: "A relaxed night out with great food, drinks and professional tables." },
-      { name: "Graduation parties", detail: "Celebrate your graduate with family and friends." },
-      { name: "Holiday parties", detail: "Company parties and family gatherings in a comfortable, non-smoking room." },
       { name: "Pool tournaments", detail: "Friendly brackets and rivalries on 14 Diamond tables, with food and drinks for the whole field." },
+      { name: "Holiday parties", detail: "Company parties and family gatherings in a comfortable, non-smoking room." },
+      { name: "Graduation parties", detail: "Celebrate your graduate with family and friends." },
     ],
     formTypes: [
       "Birthday party",

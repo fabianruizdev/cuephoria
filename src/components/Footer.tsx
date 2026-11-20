@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { site } from "@/content/site-data";
 import { tel } from "@/lib/format";
 import { Logo } from "./Header";
 import BackToTop from "./BackToTop";
+import TopLink from "./TopLink";
 import CurrentYear from "./CurrentYear";
 
 const columns = [
@@ -10,15 +10,15 @@ const columns = [
     title: "Play",
     links: [
       { href: "/table-rates", label: "Table rates" },
-      { href: "/table-rates#weekend", label: "Weekend Unlimited" },
-      { href: "/#specials", label: "Daily specials" },
+      { href: "/table-rates", label: "Weekend Unlimited" },
+      { href: "/", label: "Daily specials" },
     ],
   },
   {
     title: "Eat & Drink",
     links: [
       { href: "/food-menu", label: "Food menu" },
-      { href: "/table-rates#packages", label: "Drink packages" },
+      { href: "/table-rates", label: "Drink packages" },
       { href: "/gallery", label: "Gallery" },
     ],
   },
@@ -35,13 +35,13 @@ const columns = [
 export default function Footer() {
   const b = site.business;
   return (
-    <footer className="bg-ink pb-10 text-bone">
+    <footer className="bg-ink pt-16 pb-10 text-bone sm:pt-20">
       <div className="container-x">
         <div className="grid gap-12 md:grid-cols-[1fr_auto] md:gap-10">
           <div>
-            <Link href="/" className="inline-block rounded-sm" aria-label={`${b.shortName} home`}>
+            <TopLink href="/" className="inline-block rounded-sm" aria-label={`${b.shortName} home`}>
               <Logo />
-            </Link>
+            </TopLink>
             <p className="mt-6 max-w-[22rem] text-small leading-[1.55] text-bone/60">
               {b.tables} Diamond tables, a full bar and a real kitchen in a clean, non-smoking room. {b.city}, {b.state}.
             </p>
@@ -54,9 +54,9 @@ export default function Footer() {
                   {col.links.map((l) => (
                     <li key={l.label}>
                       {l.href.startsWith("/") ? (
-                        <Link href={l.href} className="inline-block py-[0.3rem] text-small text-bone/85 transition-colors hover:text-flame">
+                        <TopLink href={l.href} className="inline-block py-[0.3rem] text-small text-bone/85 transition-colors hover:text-flame">
                           {l.label}
-                        </Link>
+                        </TopLink>
                       ) : (
                         <a href={l.href} className="inline-block py-[0.3rem] text-small text-bone/85 transition-colors hover:text-flame">
                           {l.label}

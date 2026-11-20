@@ -122,9 +122,14 @@ export function HomeHero() {
         >
           Cue-Phoria
         </p>
-        {/* Gold copy of the word that trails the ball during the intro (HeroBall), then fades */}
-        <p
+        {/* Gold copy of the word that the ball reveals during the intro (HeroBall), then fades.
+            The glow is a filter on this unclipped wrapper; only the text inside is clipped. */}
+        <div
           aria-hidden="true"
+          className="hero-glow-wrap pointer-events-none absolute inset-0"
+          style={{ fontSize: "min(13.19rem, calc((min(100vw, 90rem) - 2 * var(--gutter)) / 6.07))" }}
+        >
+        <p
           data-hero-glow
           className="hero-glow pointer-events-none absolute font-extrabold whitespace-nowrap uppercase"
           style={{
@@ -135,6 +140,7 @@ export function HomeHero() {
         >
           Cue-Phoria
         </p>
+        </div>
         <HeroBall />
         </div>
         <h1 id="hero-title" data-hero="title" className="mt-[clamp(0.75rem,1.1vw,1rem)] text-hero font-normal text-bone">
@@ -180,12 +186,12 @@ export function IntroStats() {
     <section className="pt-[clamp(4.5rem,3rem+4.2vw,8.5rem)] pb-[clamp(4.5rem,3rem+5vw,7.5rem)]" aria-label="About Cue-Phoria">
       <div className="container-x">
         <div className="grid gap-8 md:grid-cols-[15rem_1fr] md:gap-[3.5rem]">
-          <div data-media className="relative aspect-[3/4] w-40 overflow-hidden rounded-card sm:w-48 md:w-auto">
+          <div data-media className="relative aspect-[3/4] w-40 overflow-hidden rounded-card sm:w-48 md:aspect-auto md:min-h-[20rem] md:w-auto">
             <Image src="/img/design/chalk-cue.jpg" alt="A player chalking a cue above a racked set of balls" fill sizes="(min-width: 768px) 240px, 192px" className="object-cover" />
           </div>
-          <p data-reveal className="max-w-[61.5rem] text-statement text-bone">
+          <p data-fill className="text-[clamp(1.75rem,0.9rem+2.6vw,3.375rem)] leading-[1.1] tracking-[-0.03em] text-bone">
             Upscale without the stuffiness. Competitive without the rowdiness.{" "}
-            <span className="text-bone/42">A clean, non-smoking room for pool, darts, touchscreen arcade games and sports on our TVs.</span>
+            A clean, non-smoking room for pool, darts, touchscreen arcade games and sports on our TVs.
           </p>
         </div>
 
@@ -194,13 +200,13 @@ export function IntroStats() {
             <li
               key={s.value}
               data-reveal
-              className={`flex min-h-[10rem] flex-col justify-between gap-6 rounded-card p-6 sm:min-h-[12.5rem] sm:gap-8 sm:p-7 ${s.highlight ? "bg-flame text-ink" : "bg-ink-2 text-bone"}`}
+              className={`group flex min-h-[10rem] flex-col justify-between gap-6 rounded-card p-6 border border-flame/30 bg-ink-2 text-bone transition-colors duration-300 hover:border-flame hover:bg-flame hover:text-ink sm:min-h-[12.5rem] sm:gap-8 sm:p-7`}
             >
               <p className="flex items-baseline gap-2">
                 <span className="text-stat font-light" data-count={s.value === "$0" ? 20 : 0}>{s.value}</span>
-                {s.suffix && <span className={`text-body-xl ${s.highlight ? "text-ink/70" : "text-bone/60"}`}>{s.suffix}</span>}
+                {s.suffix && <span className={`text-body-xl transition-colors duration-300 text-bone/60 group-hover:text-ink/70`}>{s.suffix}</span>}
               </p>
-              <p className={`max-w-[17rem] text-small leading-[1.35] ${s.highlight ? "text-ink/75" : "text-bone/60"}`}>{s.text}</p>
+              <p className={`max-w-[17rem] text-small leading-[1.35] transition-colors duration-300 text-bone/60 group-hover:text-ink/75`}>{s.text}</p>
             </li>
           ))}
         </ul>
@@ -213,22 +219,23 @@ export function IntroStats() {
 /* Rates list (homepage) — "Pay by the hour. Or drink by it."           */
 /* ================================================================== */
 
-function RateRow({ n, title, desc, price, unit, pad = "sm:pt-[3.75rem] sm:pb-[4.25rem]" }: { n: string; title: ReactNode; desc: ReactNode; price?: string; unit?: string; pad?: string }) {
+/* One package card. The cards and the weekend banner share the photo's height equally. */
+function RateCard({ n, title, desc, price, unit }: { n: string; title: ReactNode; desc: ReactNode; price: string; unit: string }) {
   return (
-    <li data-reveal className={`grid grid-cols-[2.25rem_1fr] gap-x-2 border-t border-ink/15 py-8 sm:grid-cols-[3.25rem_1fr_auto] sm:gap-x-0 ${pad}`}>
-      <span className="pt-2 text-xs text-stone tabular-nums" aria-hidden="true">
+    <li data-reveal className="group flex min-h-0 flex-1 gap-x-3 rounded-[1.25rem] bg-paper p-5 transition-colors duration-300 hover:bg-flame sm:gap-x-4 sm:p-6">
+      <span className="pt-1.5 text-xs text-stone tabular-nums transition-colors duration-300 group-hover:text-ink/70" aria-hidden="true">
         {n}
       </span>
-      <div className="min-w-0 sm:pe-8">
-        <h3 className="text-rate text-ink">{title}</h3>
-        <p className="mt-3 max-w-[29rem] text-body leading-[1.31] text-stone">{desc}</p>
-      </div>
-      {price && (
-        <p className="col-start-2 mt-4 flex flex-col sm:col-start-3 sm:mt-0 sm:items-end sm:text-end">
+      <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:justify-between sm:gap-6">
+        <div className="min-w-0 self-center">
+          <h3 className="text-rate text-ink">{title}</h3>
+          <p className="mt-2 max-w-[29rem] text-small leading-[1.35] text-stone transition-colors duration-300 group-hover:text-ink/75">{desc}</p>
+        </div>
+        <p className="flex shrink-0 flex-col sm:items-end sm:self-center sm:text-end">
           <span className="text-price font-light text-ink">{price}</span>
-          <span className="mt-1 text-2xs text-stone">{unit}</span>
+          <span className="mt-1 text-2xs text-stone transition-colors duration-300 group-hover:text-ink/70">{unit}</span>
         </p>
-      )}
+      </div>
     </li>
   );
 }
@@ -255,8 +262,7 @@ export function WeekendBanner({ className = "" }: { className?: string }) {
 
 export function RatesSection() {
   const pr = site.pricing;
-  const plans = pr.plans.filter((p) => p.onHomepage);
-  const minAddon = Math.min(...pr.addons.items.map((a) => a.price));
+  const plans = pr.plans;
   return (
     <section className="on-light section-y bg-cream text-ink" aria-labelledby="rates-title">
       <div className="container-x">
@@ -278,37 +284,33 @@ export function RatesSection() {
           <div data-media className="relative aspect-[4/5] overflow-hidden rounded-card lg:aspect-auto lg:h-[40.6rem]">
             <Image src={img("racking")} alt="A player racking the balls on a Diamond table" fill sizes="(min-width: 1024px) 520px, 100vw" className="object-cover object-[45%_center]" />
           </div>
-          <div>
-            <ol className="border-b border-ink/15">
-              {plans.map((p, i) => (
-                <RateRow key={p.id} n={String(i + 1).padStart(2, "0")} title={p.listName} desc={p.summary} price={money(p.price)} unit={p.unitShort} pad={i === plans.length - 1 ? "sm:pt-[3.75rem] sm:pb-9" : undefined} />
-              ))}
-              <li data-reveal className="pb-5">
-                <WeekendBanner />
-              </li>
-              <RateRow
-                n={String(plans.length + 2).padStart(2, "0")}
-                pad="sm:pt-[3.25rem] sm:pb-5"
-                title={
-                  <>
-                    Food add-ons <span aria-hidden="true">•</span> {pr.addons.note}
-                  </>
-                }
-                desc={pr.addons.items.map((a, i) => (
-                  <span key={a.name}>
-                    {i > 0 && <span className="px-2.5" aria-hidden="true">•</span>}
-                    {a.name} <span className="whitespace-nowrap">+{money(a.price)}</span>
-                  </span>
-                ))}
-              />
-            </ol>
-            <div className="mt-9 flex flex-col gap-2 text-xs leading-snug text-stone sm:flex-row sm:justify-between">
-              <p>
-                {pr.minimumNote} · {pr.gratuityNote}
-              </p>
-              <p>Add food to any package from {money(minAddon)}</p>
-            </div>
+          <ol className="flex flex-col gap-3 lg:h-[40.6rem]">
+            {plans.map((p, i) => (
+              <RateCard key={p.id} n={String(i + 1).padStart(2, "0")} title={p.listName} desc={p.summary} price={money(p.price)} unit={p.unitShort} />
+            ))}
+            <li data-reveal className="flex min-h-0 flex-1">
+              <WeekendBanner className="flex w-full flex-col justify-center" />
+            </li>
+          </ol>
+        </div>
+
+        {/* Food add-ons: full width under the photo and the packages */}
+        <div data-reveal className="mt-4 rounded-panel border border-ink/12 p-5 sm:p-7 lg:mt-6">
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+            <h3 className="text-rate text-ink">{pr.addons.title}</h3>
+            <p className="rounded-full bg-ink px-3 py-1.5 text-2xs leading-none text-bone">{pr.addons.note}</p>
           </div>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {pr.addons.items.map((a) => (
+              <li key={a.name} className="flex items-center justify-between gap-4 rounded-2xl border border-dashed border-ink/25 bg-paper/60 py-3 ps-5 pe-3">
+                <span className="text-body font-medium text-ink">{a.name}</span>
+                <span className="shrink-0 rounded-full bg-flame px-3 py-1.5 font-display text-body leading-none text-ink">+{money(a.price)}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 text-xs leading-snug text-stone">
+            {pr.minimumNote} · {pr.gratuityNote}
+          </p>
         </div>
       </div>
     </section>
@@ -384,14 +386,14 @@ export function FoodSection() {
         </div>
         <ul className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {site.menu.preview.map((f) => (
-            <li key={f.name} data-reveal className="flex min-h-[8.5rem] flex-col justify-between gap-6 rounded-card bg-paper p-4 sm:min-h-[9.9rem] sm:gap-8 sm:p-[1.625rem]">
+            <li key={f.name} data-reveal className="food-card relative isolate flex min-h-[8.5rem] overflow-hidden flex-col justify-between gap-6 rounded-card bg-paper p-4 sm:min-h-[9.9rem] sm:gap-8 sm:p-[1.625rem]">
               <p className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
-                <span className="text-card text-ink">{f.name}</span>
-                <span className="text-xs whitespace-nowrap text-stone">{f.meta}</span>
+                <span className="food-card-title text-card text-ink">{f.name}</span>
+                <span className="food-card-meta text-xs whitespace-nowrap text-stone">{f.meta}</span>
               </p>
               <p className="flex items-baseline gap-2">
-                {f.from && <span className="text-xs text-stone">from</span>}
-                <span className="text-price font-light text-ink">{money(f.price)}</span>
+                {f.from && <span className="food-card-meta text-xs text-stone">from</span>}
+                <span className="food-card-price text-price font-light text-ink">{money(f.price)}</span>
               </p>
             </li>
           ))}
@@ -423,7 +425,7 @@ export function PartySection({ withButton = true }: { withButton?: boolean }) {
             <ul data-reveal className="mt-9 flex max-w-[27rem] flex-wrap gap-2" aria-label="Events we host">
               {site.events.tags.map((t) => (
                 <li key={t}>
-                  <Link href="/book-events-contact-us#plan" className="event-tag relative isolate inline-block overflow-hidden rounded-full border border-bone/15 px-4 py-2.5 text-xs leading-none text-bone/80 sm:px-[1.0625rem]">
+                  <Link href="/book-events-contact-us" className="event-tag relative isolate inline-block overflow-hidden rounded-full border border-bone/15 px-4 py-2.5 text-xs leading-none text-bone/80 sm:px-[1.0625rem]">
                     {t}
                   </Link>
                 </li>
@@ -437,7 +439,7 @@ export function PartySection({ withButton = true }: { withButton?: boolean }) {
                 </a>
               </p>
               {withButton && (
-                <PillLink href="/book-events-contact-us#plan" tone="flame">
+                <PillLink href="/book-events-contact-us" tone="flame">
                   Plan an event
                 </PillLink>
               )}

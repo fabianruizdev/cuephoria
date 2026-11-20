@@ -40,7 +40,7 @@ export default function FoodMenuPage() {
 
       <section className="on-light bg-cream text-ink" aria-label="Menu">
         {/* Section jump links */}
-        <nav aria-label="Menu sections" className="sticky top-0 z-20 border-b border-ink/10 bg-cream/90 backdrop-blur-md">
+        <nav aria-label="Menu sections" className="sticky top-[5.25rem] z-20 border-b border-ink/10 bg-cream/90 backdrop-blur-md">
           <ul className="container-x flex gap-2 overflow-x-auto py-3 [scrollbar-width:none]">
             {m.sections.map((s) => (
               <li key={s.id} className="shrink-0">
@@ -131,7 +131,7 @@ export default function FoodMenuPage() {
                 {site.pricing.addons.items.map((a) => `${a.name} +${money(a.price)}`).join(" · ")}.
               </p>
             </div>
-            <PillLink href="/table-rates#packages" tone="flame" icon="right">
+            <PillLink href="/table-rates" tone="flame" icon="right">
               See drink packages
             </PillLink>
           </div>
