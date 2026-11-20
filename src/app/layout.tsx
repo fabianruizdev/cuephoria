@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Lilita_One, Neonderthaw } from "next/font/google";
 import localFont from "next/font/local";
+import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { site } from "@/content/site-data";
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: b.name,
-    images: [{ url: "/img/room-lights.jpg", width: 1800, height: 1200, alt: "Diamond pool tables under the ceiling light frames at Cue-Phoria" }],
+    images: [{ url: "/img/room-lights.jpg", width: 2560, height: 1707, alt: "Diamond pool tables under the ceiling light frames at Cue-Phoria" }],
   },
   formatDetection: { telephone: false },
 };
@@ -59,6 +60,10 @@ export const viewport: Viewport = {
   themeColor: "#0f1214",
   colorScheme: "dark",
 };
+
+/* Runs before paint: turns on intro animations only when JS works and the visitor
+   has not asked for reduced motion. If the app never hydrates, content reappears after 4s. */
+const motionScript = `(function(){var d=document.documentElement;if(!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches)return;d.classList.add('motion');setTimeout(function(){if(!d.classList.contains('motion-ready'))d.classList.remove('motion')},4000)})()`;
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const jsonLd = {
@@ -91,9 +96,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${archivo.variable} ${lilita.variable} ${neonderthaw.variable} ${satoshi.variable}`}
     >
       <body>
+        <Script id="motion-flag" strategy="beforeInteractive">
+          {motionScript}
+        </Script>
         <a href="#main" className="skip-link">
           Skip to content
         </a>

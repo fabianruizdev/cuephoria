@@ -38,51 +38,43 @@ export function Star({ className = "" }: { className?: string }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Pill buttons with the round icon chip, as in the Figma file         */
+/* Pill buttons with the round icon chip, as in the Figma file.        */
+/* Colours and the hover fill live in globals.css (.pill[data-tone]):  */
+/* on hover the chip's colour floods the pill from the chip outwards.  */
 /* ------------------------------------------------------------------ */
 
 type Tone = "flame" | "ghost" | "dark" | "ghost-dark";
+type Icon = "up-right" | "right" | "phone";
 
-const toneClass: Record<Tone, { pill: string; chip: string }> = {
-  // Orange pill, dark chip with an orange arrow
-  flame: {
-    pill: "bg-flame text-ink hover:bg-[#ffb062]",
-    chip: "bg-ink text-flame",
-  },
-  // Outline pill on dark, light chip with a dark arrow
-  ghost: {
-    pill: "border border-bone/25 text-bone hover:border-bone/60 hover:bg-bone/5",
-    chip: "bg-bone text-ink",
-  },
-  // Dark pill on cream, orange chip with a dark arrow
-  dark: {
-    pill: "bg-ink text-bone hover:bg-[#262b30]",
-    chip: "bg-flame text-ink",
-  },
-  // Outline pill on cream
-  "ghost-dark": {
-    pill: "border border-ink/25 text-ink hover:border-ink/60 hover:bg-ink/5",
-    chip: "bg-ink text-bone",
-  },
-};
+export function PhoneIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" className={className} fill="none">
+      <path d="M5.6 2.2 3.9 2a1.3 1.3 0 0 0-1.4 1.2c-.2 5.6 4.7 10.5 10.3 10.3a1.3 1.3 0 0 0 1.2-1.4l-.2-1.7a1 1 0 0 0-.7-.8l-2-.6a1 1 0 0 0-1 .3l-.8.8a8 8 0 0 1-3.4-3.4l.8-.8a1 1 0 0 0 .3-1l-.6-2a1 1 0 0 0-.8-.7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 const pillBase =
-  "group inline-flex min-h-12 items-center gap-4 rounded-full py-1.5 ps-[1.375rem] pe-1.5 text-small font-medium leading-none whitespace-nowrap transition-colors duration-200";
-const chipBase =
-  "grid size-9 shrink-0 place-items-center rounded-full transition-transform duration-200 motion-safe:group-hover:translate-x-0.5";
+  "pill group relative isolate inline-flex min-h-12 items-center gap-4 overflow-hidden rounded-full py-1.5 ps-[1.375rem] pe-1.5 text-small font-medium leading-none whitespace-nowrap";
 
 interface PillProps {
   tone?: Tone;
-  icon?: "up-right" | "right";
+  icon?: Icon;
   children: ReactNode;
   className?: string;
+  /** Extra classes for the text label (the header collapses it to show only the chip) */
+  labelClassName?: string;
 }
 
-function Chip({ tone, icon }: { tone: Tone; icon: "up-right" | "right" }) {
+function PillInner({ icon, children, labelClassName = "" }: { icon: Icon; children: ReactNode; labelClassName?: string }) {
   return (
-    <span className={`${chipBase} ${toneClass[tone].chip}`}>
-      {icon === "up-right" ? <ArrowUpRight /> : <ArrowRight />}
-    </span>
+    <>
+      <span aria-hidden="true" className="pill-fill" />
+      <span className={`relative ${labelClassName}`}>{children}</span>
+      <span className="pill-chip relative grid size-9 shrink-0 place-items-center rounded-full">
+        {icon === "up-right" ? <ArrowUpRight /> : icon === "phone" ? <PhoneIcon /> : <ArrowRight />}
+      </span>
+    </>
   );
 }
 
@@ -92,25 +84,21 @@ export function PillLink({
   icon = "up-right",
   children,
   className = "",
+  labelClassName,
   href,
   ...rest
 }: PillProps & Omit<ComponentProps<"a">, "className" | "children"> & { href: string }) {
-  const cls = `${pillBase} ${toneClass[tone].pill} ${className}`;
-  const inner = (
-    <>
-      <span>{children}</span>
-      <Chip tone={tone} icon={icon} />
-    </>
-  );
+  const cls = `${pillBase} ${className}`;
+  const inner = <PillInner icon={icon} labelClassName={labelClassName}>{children}</PillInner>;
   if (href.startsWith("/") && !href.startsWith("//")) {
     return (
-      <Link href={href} className={cls} {...rest}>
+      <Link href={href} className={cls} data-tone={tone} data-magnetic {...rest}>
         {inner}
       </Link>
     );
   }
   return (
-    <a href={href} className={cls} {...rest}>
+    <a href={href} className={cls} data-tone={tone} data-magnetic {...rest}>
       {inner}
     </a>
   );
@@ -121,12 +109,12 @@ export function PillButton({
   icon = "up-right",
   children,
   className = "",
+  labelClassName,
   ...rest
 }: PillProps & Omit<ComponentProps<"button">, "className" | "children">) {
   return (
-    <button className={`${pillBase} ${toneClass[tone].pill} cursor-pointer disabled:cursor-progress disabled:opacity-70 ${className}`} {...rest}>
-      <span>{children}</span>
-      <Chip tone={tone} icon={icon} />
+    <button data-magnetic data-tone={tone} className={`${pillBase} cursor-pointer disabled:cursor-progress disabled:opacity-70 ${className}`} {...rest}>
+      <PillInner icon={icon} labelClassName={labelClassName}>{children}</PillInner>
     </button>
   );
 }
@@ -153,7 +141,7 @@ export function DisplayHeading({
   const sizeCls = size === "heading" ? "text-heading" : "text-title";
   const colorCls = color === "ink" ? "text-ink" : "text-sun";
   return (
-    <Tag id={id} className={`text-extrude ${sizeCls} ${colorCls} ${className}`}>
+    <Tag id={id} data-split={size === "heading" ? "" : undefined} className={`text-extrude ${sizeCls} ${colorCls} ${className}`}>
       {children}
     </Tag>
   );
@@ -181,7 +169,7 @@ export function SectionHead({
         {heading}
       </DisplayHeading>
       {(intro || action) && (
-        <div className="flex flex-col items-start gap-8">
+        <div data-reveal className="flex flex-col items-start gap-8">
           {intro && (
             <p className={`text-body-lg leading-[1.45] ${introTone === "stone" ? "text-stone" : "text-bone/70"}`}>{intro}</p>
           )}

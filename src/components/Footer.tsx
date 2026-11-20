@@ -2,6 +2,7 @@ import Link from "next/link";
 import { site } from "@/content/site-data";
 import { tel } from "@/lib/format";
 import { Logo } from "./Header";
+import BackToTop from "./BackToTop";
 import CurrentYear from "./CurrentYear";
 
 const columns = [
@@ -68,7 +69,10 @@ export default function Footer() {
             ))}
           </nav>
         </div>
-        <div className="mt-10 flex flex-col gap-2 border-t border-bone/10 pt-7 text-small text-bone/75 sm:flex-row sm:justify-between">
+        <div className="mt-12 flex justify-center">
+          <BackToTop />
+        </div>
+        <div className="mt-8 flex flex-col gap-2 border-t border-bone/10 pt-7 text-small text-bone/75 sm:flex-row sm:justify-between">
           <p>
             © <CurrentYear /> {b.name}
           </p>

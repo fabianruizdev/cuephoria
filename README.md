@@ -7,7 +7,7 @@ The homepage follows the Figma design at 1440px; the inner pages reuse the same 
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+npm run dev        # http://localhost:3009
 npm run build      # production build (all pages are prerendered as static HTML)
 npm run start      # serve the production build
 ```

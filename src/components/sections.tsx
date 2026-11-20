@@ -1,8 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { site } from "@/content/site-data";
 import { money, specials, tel } from "@/lib/format";
 import EventForm from "./EventForm";
+import HeroBall from "./motion/HeroBall";
+import PageMotion from "./motion/PageMotion";
 import HoursList from "./HoursList";
 import { DisplayHeading, PillLink, SectionHead, Star } from "./ui";
 
@@ -39,6 +42,7 @@ function PhotoPanel({
         sizes="100vw"
         fetchPriority={priority ? "high" : undefined}
         loading={priority ? "eager" : "lazy"}
+        data-hero-bg={priority ? "" : undefined}
         className="object-cover"
         style={{ objectPosition: position }}
       />
@@ -105,8 +109,10 @@ export function HomeHero() {
         overlay="bg-ink/55 bg-gradient-to-r from-ink/60 via-ink/35 to-ink/15"
       />
       <div className="container-x relative pb-12 lg:pb-0">
+        <div className="relative">
         <p
           aria-hidden="true"
+          data-hero="word"
           className="font-extrabold whitespace-nowrap text-bone/60 uppercase"
           style={{
             fontSize: "min(13.19rem, calc((min(100vw, 90rem) - 2 * var(--gutter)) / 6.07))",
@@ -116,7 +122,22 @@ export function HomeHero() {
         >
           Cue-Phoria
         </p>
-        <h1 id="hero-title" className="mt-[clamp(0.75rem,1.1vw,1rem)] text-hero font-normal text-bone">
+        {/* Gold copy of the word that trails the ball during the intro (HeroBall), then fades */}
+        <p
+          aria-hidden="true"
+          data-hero-glow
+          className="hero-glow pointer-events-none absolute font-extrabold whitespace-nowrap uppercase"
+          style={{
+            fontSize: "min(13.19rem, calc((min(100vw, 90rem) - 2 * var(--gutter)) / 6.07))",
+            lineHeight: 0.9335,
+            letterSpacing: "-0.0584em",
+          }}
+        >
+          Cue-Phoria
+        </p>
+        <HeroBall />
+        </div>
+        <h1 id="hero-title" data-hero="title" className="mt-[clamp(0.75rem,1.1vw,1rem)] text-hero font-normal text-bone">
           Fourteen <br className="hidden xs:block" />
           Diamond tables. <br className="hidden xs:block" />
           <span className="text-bone/55">Zero smoke.</span>
@@ -124,10 +145,10 @@ export function HomeHero() {
 
         <div className="mt-8 grid gap-10 lg:mt-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="lg:pb-[3.375rem]">
-            <p className="max-w-[32.5rem] text-body-lg leading-[1.555] text-bone/80">
+            <p data-hero="item" className="max-w-[32.5rem] text-body-lg leading-[1.555] text-bone/80">
               Winter Park&apos;s upscale pool room — a full bar, a real kitchen and a game on every screen. No cover, open seven days.
             </p>
-            <div className="mt-10 flex flex-wrap gap-3">
+            <div data-hero="item" className="mt-10 flex flex-wrap gap-3">
               <PillLink href={tel} tone="flame">
                 Call to reserve a table
               </PillLink>
@@ -136,7 +157,7 @@ export function HomeHero() {
               </PillLink>
             </div>
           </div>
-          <div className="lg:-me-[2.1rem] lg:-mt-[5.1rem]">
+          <div data-hero="item" className="lg:-me-[2.1rem] lg:-mt-[5.1rem]">
             {b.veteranOwned && (
               <p className="mb-3 font-display text-label text-amber lg:me-[2.1rem] lg:text-end">Veteran Owned and Operated</p>
             )}
@@ -144,6 +165,8 @@ export function HomeHero() {
           </div>
         </div>
       </div>
+      {/* Inside the page so it runs after the page hydrates (see PageMotion) */}
+      <PageMotion />
     </section>
   );
 }
@@ -157,10 +180,10 @@ export function IntroStats() {
     <section className="pt-[clamp(4.5rem,3rem+4.2vw,8.5rem)] pb-[clamp(4.5rem,3rem+5vw,7.5rem)]" aria-label="About Cue-Phoria">
       <div className="container-x">
         <div className="grid gap-8 md:grid-cols-[15rem_1fr] md:gap-[3.5rem]">
-          <div className="relative aspect-[3/4] w-40 overflow-hidden rounded-card sm:w-48 md:w-auto">
+          <div data-media className="relative aspect-[3/4] w-40 overflow-hidden rounded-card sm:w-48 md:w-auto">
             <Image src="/img/design/chalk-cue.jpg" alt="A player chalking a cue above a racked set of balls" fill sizes="(min-width: 768px) 240px, 192px" className="object-cover" />
           </div>
-          <p className="max-w-[61.5rem] text-statement text-bone">
+          <p data-reveal className="max-w-[61.5rem] text-statement text-bone">
             Upscale without the stuffiness. Competitive without the rowdiness.{" "}
             <span className="text-bone/42">A clean, non-smoking room for pool, darts, touchscreen arcade games and sports on our TVs.</span>
           </p>
@@ -170,10 +193,11 @@ export function IntroStats() {
           {site.stats.map((s) => (
             <li
               key={s.value}
+              data-reveal
               className={`flex min-h-[10rem] flex-col justify-between gap-6 rounded-card p-6 sm:min-h-[12.5rem] sm:gap-8 sm:p-7 ${s.highlight ? "bg-flame text-ink" : "bg-ink-2 text-bone"}`}
             >
               <p className="flex items-baseline gap-2">
-                <span className="text-stat font-light">{s.value}</span>
+                <span className="text-stat font-light" data-count={s.value === "$0" ? 20 : 0}>{s.value}</span>
                 {s.suffix && <span className={`text-body-xl ${s.highlight ? "text-ink/70" : "text-bone/60"}`}>{s.suffix}</span>}
               </p>
               <p className={`max-w-[17rem] text-small leading-[1.35] ${s.highlight ? "text-ink/75" : "text-bone/60"}`}>{s.text}</p>
@@ -191,7 +215,7 @@ export function IntroStats() {
 
 function RateRow({ n, title, desc, price, unit, pad = "sm:pt-[3.75rem] sm:pb-[4.25rem]" }: { n: string; title: ReactNode; desc: ReactNode; price?: string; unit?: string; pad?: string }) {
   return (
-    <li className={`grid grid-cols-[2.25rem_1fr] gap-x-2 border-t border-ink/15 py-8 sm:grid-cols-[3.25rem_1fr_auto] sm:gap-x-0 ${pad}`}>
+    <li data-reveal className={`grid grid-cols-[2.25rem_1fr] gap-x-2 border-t border-ink/15 py-8 sm:grid-cols-[3.25rem_1fr_auto] sm:gap-x-0 ${pad}`}>
       <span className="pt-2 text-xs text-stone tabular-nums" aria-hidden="true">
         {n}
       </span>
@@ -251,7 +275,7 @@ export function RatesSection() {
           }
         />
         <div className="mt-12 grid gap-10 *:min-w-0 lg:mt-14 lg:grid-cols-[32.5rem_1fr] lg:gap-[4.5rem]">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-card lg:aspect-auto lg:h-[40.6rem]">
+          <div data-media className="relative aspect-[4/5] overflow-hidden rounded-card lg:aspect-auto lg:h-[40.6rem]">
             <Image src={img("racking")} alt="A player racking the balls on a Diamond table" fill sizes="(min-width: 1024px) 520px, 100vw" className="object-cover object-[45%_center]" />
           </div>
           <div>
@@ -259,7 +283,7 @@ export function RatesSection() {
               {plans.map((p, i) => (
                 <RateRow key={p.id} n={String(i + 1).padStart(2, "0")} title={p.listName} desc={p.summary} price={money(p.price)} unit={p.unitShort} pad={i === plans.length - 1 ? "sm:pt-[3.75rem] sm:pb-9" : undefined} />
               ))}
-              <li className="pb-5">
+              <li data-reveal className="pb-5">
                 <WeekendBanner />
               </li>
               <RateRow
@@ -309,7 +333,7 @@ export function NeonSpecials() {
         <div className="mt-[clamp(2rem,3vw,3.25rem)] rounded-panel border border-flame/55 bg-ink-2/95 px-5 py-6 sm:px-10 sm:py-8">
           <ul>
             {specials().map((s) => (
-              <li key={s.name} className="border-b border-dashed border-bone/15 px-0 pt-5 pb-5 sm:px-4 sm:pt-5 sm:pb-5 first:pt-2">
+              <li key={s.name} data-reveal className="border-b border-dashed border-bone/15 px-0 pt-5 pb-5 sm:px-4 sm:pt-5 sm:pb-5 first:pt-2">
                 <h3 className="text-extrude text-title text-sun normal-case">
                   <span className="uppercase max-sm:block">{s.when}</span>
                   <span className="max-sm:hidden" aria-hidden="true"> · </span>
@@ -351,16 +375,16 @@ export function FoodSection() {
           }
         />
         <div className="mt-12 grid gap-4 sm:grid-cols-[1.776fr_1fr] lg:mt-14">
-          <div className="relative aspect-[16/9] overflow-hidden rounded-card sm:aspect-auto sm:h-[clamp(16rem,31.6vw,28.45rem)]">
+          <div data-media className="relative aspect-[16/9] overflow-hidden rounded-card sm:aspect-auto sm:h-[clamp(16rem,31.6vw,28.45rem)]">
             <Image src="/img/design/wings.jpg" alt="A basket of glazed air-fried wings with celery and blue cheese" fill sizes="(min-width: 640px) 64vw, 100vw" className="object-cover" />
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-card sm:aspect-auto">
+          <div data-media className="relative aspect-[4/3] overflow-hidden rounded-card sm:aspect-auto">
             <Image src="/img/design/burger.jpg" alt="A bacon cheeseburger with fries and a draft beer" fill sizes="(min-width: 640px) 36vw, 100vw" className="object-cover" />
           </div>
         </div>
         <ul className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {site.menu.preview.map((f) => (
-            <li key={f.name} className="flex min-h-[8.5rem] flex-col justify-between gap-6 rounded-card bg-paper p-4 sm:min-h-[9.9rem] sm:gap-8 sm:p-[1.625rem]">
+            <li key={f.name} data-reveal className="flex min-h-[8.5rem] flex-col justify-between gap-6 rounded-card bg-paper p-4 sm:min-h-[9.9rem] sm:gap-8 sm:p-[1.625rem]">
               <p className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
                 <span className="text-card text-ink">{f.name}</span>
                 <span className="text-xs whitespace-nowrap text-stone">{f.meta}</span>
@@ -386,7 +410,7 @@ export function PartySection({ withButton = true }: { withButton?: boolean }) {
     <section className="pt-[clamp(4.5rem,3rem+5vw,7.5rem)]" aria-labelledby="party-title">
       <div className="container-x">
         <div className="grid gap-8 rounded-panel bg-ink-2 p-2.5 sm:p-4 lg:grid-cols-[46.8rem_1fr] lg:gap-10">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-card lg:aspect-auto lg:h-[37.5rem]">
+          <div data-media className="relative aspect-[4/3] overflow-hidden rounded-card lg:aspect-auto lg:h-[37.5rem]">
             <Image src={img("party-balloons")} alt="A party group in front of a balloon display" fill sizes="(min-width: 1024px) 750px, 100vw" className="object-cover" />
           </div>
           <div className="flex flex-col px-3 pb-5 sm:px-4 lg:px-0 lg:pt-10 lg:pe-10 lg:pb-6">
@@ -396,10 +420,12 @@ export function PartySection({ withButton = true }: { withButton?: boolean }) {
             <p className="mt-6 max-w-[28rem] text-body-lg leading-[1.45] text-bone/70">
               Reserved tables and seating, drink packages and food for the group. Tell us the date and headcount — we&apos;ll handle the rest.
             </p>
-            <ul className="mt-9 flex max-w-[27rem] flex-wrap gap-2" aria-label="Events we host">
+            <ul data-reveal className="mt-9 flex max-w-[27rem] flex-wrap gap-2" aria-label="Events we host">
               {site.events.tags.map((t) => (
-                <li key={t} className="rounded-full border border-bone/15 px-4 py-2.5 text-xs leading-none text-bone/80 sm:px-[1.0625rem]">
-                  {t}
+                <li key={t}>
+                  <Link href="/book-events-contact-us#plan" className="event-tag relative isolate inline-block overflow-hidden rounded-full border border-bone/15 px-4 py-2.5 text-xs leading-none text-bone/80 sm:px-[1.0625rem]">
+                    {t}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -465,8 +491,8 @@ export function GalleryStrip() {
           {site.galleryStrip.map((file, i) => {
             const g = galleryItem(file);
             return (
-              <li key={file} className={i % 2 === 1 ? "mt-10 lg:mt-16" : ""}>
-                <div className="relative aspect-[308/415] overflow-hidden rounded-card">
+              <li key={file} data-drift={i % 2 === 1 ? 45 : 15} className={i % 2 === 1 ? "mt-10 lg:mt-16" : ""}>
+                <div data-media className="relative aspect-[308/415] overflow-hidden rounded-card">
                   <Image src={img(file)} alt={g.alt} fill sizes="(min-width: 1024px) 308px, 50vw" className="object-cover" />
                 </div>
               </li>
@@ -511,7 +537,7 @@ export function FaqSection() {
           <DisplayHeading id="faq-title">
             <span className="block">Good to</span> <span className="block">know.</span>
           </DisplayHeading>
-          <div className="relative mt-8 hidden aspect-[440/550] overflow-hidden rounded-card lg:block">
+          <div data-media className="relative mt-8 hidden aspect-[440/550] overflow-hidden rounded-card lg:block">
             <Image src={img("bartender")} alt="A smiling bartender behind the Cue-Phoria bar" fill sizes="440px" className="object-cover object-[center_30%]" />
           </div>
         </div>
@@ -547,10 +573,10 @@ export function VisitSection() {
             </PillLink>
           </div>
         </div>
-        <div className="relative min-h-[18rem] overflow-hidden rounded-card">
+        <div data-media className="relative min-h-[18rem] overflow-hidden rounded-card">
           <Image src={img("room-day")} alt="Rows of Diamond tables with high-top seating by the windows" fill sizes="(min-width: 1024px) 352px, (min-width: 768px) 50vw, 100vw" className="object-cover object-[40%_center]" />
         </div>
-        <div className="on-light rounded-card bg-cream p-7 text-ink sm:p-9">
+        <div data-reveal className="on-light rounded-card bg-cream p-7 text-ink sm:p-9">
           <DisplayHeading as="h3" size="title">
             Hours
           </DisplayHeading>
@@ -595,13 +621,14 @@ export function PageHero({
     <section className="relative isolate overflow-hidden pt-[9.5rem] pb-[clamp(3.5rem,2rem+4vw,6rem)] sm:pt-[11rem] lg:pt-[13.5rem]" aria-labelledby="page-title">
       <PhotoPanel src={image} priority position={position} overlay="bg-gradient-to-r from-ink/80 via-ink/55 to-ink/25" />
       <div className="container-x">
-        <p className="font-display text-label text-amber">{eyebrow}</p>
-        <h1 id="page-title" className="mt-4 max-w-[14ch] text-[clamp(2.75rem,1rem+5.2vw,5.5rem)] leading-[0.98] tracking-[-0.045em] text-bone">
+        <p data-intro className="font-display text-label text-amber">{eyebrow}</p>
+        <h1 id="page-title" data-intro className="mt-4 max-w-[14ch] text-[clamp(2.75rem,1rem+5.2vw,5.5rem)] leading-[0.98] tracking-[-0.045em] text-bone">
           {title}
         </h1>
-        <p className="mt-6 max-w-[36rem] text-body-xl text-bone/80">{lead}</p>
-        {children && <div className="mt-10 flex flex-wrap gap-3">{children}</div>}
+        <p data-intro className="mt-6 max-w-[36rem] text-body-xl text-bone/80">{lead}</p>
+        {children && <div data-intro className="mt-10 flex flex-wrap gap-3">{children}</div>}
       </div>
+      <PageMotion />
     </section>
   );
 }
