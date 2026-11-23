@@ -520,7 +520,15 @@ dialog.viewer::backdrop {
    On hover the dark fill floods it, so the phone turns orange (not dark on dark). */
 .site-header[data-compact] .header-cta .pill-chip { background: transparent; color: var(--color-ink); }
 .site-header[data-compact] .header-cta:is(:hover, :focus-visible) .pill-chip { background: transparent; color: var(--color-flame); }
-.site-header[data-compact] .hdr-menu-btn { padding-inline: 0.875rem; }
+.site-header[data-compact] .hdr-menu-btn { padding: 0; }
+
+/* Keep the Cue-Phoria name visible on mobile, including after scrolling. */
+@media (width < 75rem) {
+  .site-header[data-compact] .show-compact { grid-template-columns: 0fr; opacity: 0; }
+  .site-header[data-compact] .hide-compact { grid-template-columns: 1fr; opacity: 1; }
+}
+
+.menu-icon path { transform-origin: center; }
 
 /* Nav links: in the popover (narrow screens) icon + label; inline, label only until scrolled */
 .nav-label > * { padding-inline-start: 0.75rem; }

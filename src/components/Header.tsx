@@ -53,6 +53,7 @@ export default function Header() {
   const pathname = usePathname();
   const menuRef = useRef<HTMLUListElement>(null);
   const [compact, setCompact] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   useScrollTopAfterNav();
 
   useEffect(() => {
@@ -115,14 +116,35 @@ export default function Header() {
             type="button"
             popoverTarget="site-menu"
             aria-controls="site-menu"
-            className="hdr-menu-btn order-3 inline-flex min-h-12 cursor-pointer items-center rounded-full border border-bone/25 px-4 text-small text-bone transition-colors hover:border-bone/60 min-[75rem]:hidden"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            className="hdr-menu-btn order-3 inline-flex size-12 cursor-pointer items-center justify-center rounded-full border border-bone/25 text-bone transition-colors hover:border-bone/60 min-[75rem]:hidden"
+            onClick={() => setMenuOpen((open) => !open)}
           >
-            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" className="shrink-0">
-              <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            <svg
+              viewBox="0 0 20 20"
+              width="18"
+              height="18"
+              aria-hidden="true"
+              fill="none"
+              className="menu-icon shrink-0"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            >
+              {menuOpen ? (
+                <>
+                  <path d="M4 4l12 12" />
+                  <path d="M16 4 4 16" />
+                </>
+              ) : (
+                <>
+                  <path d="M3 6h14" />
+                  <path d="M3 10h14" />
+                  <path d="M3 14h14" />
+                </>
+              )}
             </svg>
-            <span className="hdr-x hide-compact grid">
-              <span className="ps-2.5">Menu</span>
-            </span>
           </button>
 
           <ul
